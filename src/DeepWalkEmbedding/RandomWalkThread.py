@@ -14,6 +14,8 @@ class RandomWalkTread(Thread):
         self.p = p
         self.q = q
     
+    # n2v=True means that I have to use node2vec
+    # n2v=Flase instead means that I have to use DeepWalk
     def node2vec_walk(self, start_node, n2v=False):
         
         G = self.G

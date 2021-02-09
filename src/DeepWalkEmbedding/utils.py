@@ -99,12 +99,6 @@ def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
     validation_edges = (validation_edges[0][perm_valid], validation_edges[1][perm_valid])
     validation_labels = validation_labels[perm_valid]
 
-    """  
-    # return indices not as tuples of lists but instead as matrices with the indices of each edge in the rows in order to feed them to a keras generator
-    train_edges = np.matrix( np.vstack((np.array(train_edges[0]), np.array(train_edges[1]))) ).transpose()
-    test_edges = np.matrix( np.vstack((np.array(test_edges[0]), np.array(test_edges[1]))) ).transpose()
-    validation_edges = np.matrix( np.vstack((np.array(validation_edges[0]), np.array(validation_edges[1]))) ).transpose()
-    """
     return adj_train, train_edges, train_labels, validation_edges, validation_labels, test_edges, test_labels
 
 def create_adj_matrix(data, num_nodes, nodes_dict):
@@ -142,6 +136,9 @@ def save_to_file(row, col, fname, labels=None):
                 fout.write('{}\t{}\t{}\n'.format(row[i], col[i], labels[i]))
 
 
+# this function first turns the label from strings to integers (in order to 
+# meet the requirements of networkx) than splits tha data into train, test and validation
+# and saves these files, so that we do not have to recompute them. 
 def split_dataset():
 		
     data = pd.read_csv(constants.DATASET_FILE_NAME, sep='\t', header=0, names=['diseases','genes'])
