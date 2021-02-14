@@ -4,7 +4,7 @@ src/Features/DiseaseSimilarities/outfile_new.txt
 src/Features/DiseaseSimilarities/outfile.txt
 
 src/DeepWalkEmbedding/data/*
-
+src/DeepWalkEmbedding/walks.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

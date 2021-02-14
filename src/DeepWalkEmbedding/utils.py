@@ -7,6 +7,13 @@ import random
 
 import consts as constants
 
+def save_walks(walks):
+    with open(constants.WALKS_FILE, 'w') as fout:
+        for walk in walks:
+            for node in walk:
+                fout.write(str(node) + ' ')
+            fout.write('\n')
+
 def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
 
     num_nodes = adj.shape[0] 

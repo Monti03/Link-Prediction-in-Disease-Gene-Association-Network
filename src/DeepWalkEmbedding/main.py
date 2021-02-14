@@ -24,7 +24,7 @@ import os
 import graph
 import consts as  constants
 
-from utils import train_test_split, create_adj_matrix, split_dataset
+from utils import train_test_split, create_adj_matrix, split_dataset, save_walks
 
 def read_graph(input_file):
 	'''
@@ -40,7 +40,6 @@ def learn_embeddings(walks):
 	'''
 	Learn embeddings by optimizing the Skipgram objective using SGD.
 	'''
-	walks = [list(map(str, walk)) for walk in walks]
 	print(len(walks))
 	model = Word2Vec(walks, size=constants.DIMENSIONS, window=constants.WINDOW_SIZE, min_count=0, sg=1, workers=constants.CORES, iter=constants.ITER)
 	model.wv.save_word2vec_format(constants.OUTPUT_FILE)
@@ -63,8 +62,18 @@ def main():
 	G = graph.Graph(nx_G, constants.P, constants.Q)
 	
 	print('simulate walks')
-	walks = G.simulate_walks(constants.NUM_WALKS, constants.WALK_LENGTH)
+	walks = []
+	if not os.path.isfile(constants.WALKS_FILE):
+		walks = G.simulate_walks(constants.NUM_WALKS, constants.WALK_LENGTH)
+		save_walks(walks)
+		walks = [list(map(str, walk)) for walk in walks]
+	else:
+		with open(constants.WALKS_FILE) as fin:
+			walks = fin.read().split('\n')
+			walks = [walk.split(' ') for walk in walks]
+	
 	print(len(walks))
+	
 	print('learn embeddings')
 	learn_embeddings(walks)
 

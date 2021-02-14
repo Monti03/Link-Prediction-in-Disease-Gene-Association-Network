@@ -73,11 +73,11 @@ def remove_indexes(to_remove_indexes, list_):
     
 
 def plot(history):
-    #print(history.history.keys())
+    print(history.history.keys())
     fig, ax = plt.subplots()
     # accuracy
-    ax.plot(range(len(history.history['accuracy'])), history.history['accuracy'], label='train_accuracy')
-    ax.plot(range(len(history.history['val_accuracy'])), history.history['val_accuracy'],  label='valdiation_accuracy')
+    ax.plot(range(len(history.history['acc'])), history.history['acc'], label='train_accuracy')
+    ax.plot(range(len(history.history['val_acc'])), history.history['val_acc'],  label='valdiation_accuracy')
     ax.legend(['train_accuracy', 'validation_accuracy'])
     fig.savefig('accuracy.png')
 
@@ -101,9 +101,12 @@ def main():
     remove_indexes(list(train_to_remove), train[1])
     remove_indexes(list(test_to_remove), test[1])
     remove_indexes(list(validation_to_remove), validation[1])
-
     
     loss_fn = tf.keras.losses.BinaryCrossentropy()
+
+    print("-------------------------")
+    print(train_edges)
+    print("-------------------------")
 
     model = tf.keras.models.Sequential([
         tf.keras.layers.Dense(300, activation='relu'),
