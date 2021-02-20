@@ -3,8 +3,15 @@ from gensim.models import KeyedVectors
 import tensorflow as tf
 import numpy as np
 
+import seaborn as sn
+import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_curve, roc_auc_score, auc, precision_recall_curve
 import consts as constants
 
 def load_n2v_embedding():
@@ -88,6 +95,23 @@ def plot(history):
     ax.legend(['train_loss', 'validation_loss'])
     fig.savefig('loss.png')
 
+def roc_curve_plot(testy, y_pred):
+    lr_auc = roc_auc_score(testy, y_pred)
+
+    print('Logistic: ROC AUC=%.3f' % (lr_auc))
+
+    lr_fpr, lr_tpr, _ = roc_curve(testy, y_pred)
+    
+    plt.plot(lr_fpr, lr_tpr, label='ROC AUC=%.3f' % (lr_auc))
+
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+
+    plt.legend()
+    plt.savefig('ROC_score.png')
+    plt.show()
+
+
 def main():
 
     wv = load_n2v_embedding()
@@ -129,7 +153,32 @@ def main():
 
     model.evaluate(test_edges,  np.array(test[1]), verbose=2)
 
+    predictions = model.predict(test_edges)
+
+    roc_curve_plot(np.array(test[1]), predictions)
+
+
+    predictions = (predictions > 0.5)
+    cm = confusion_matrix(np.array(test[1]), predictions)
+    
+    df_cm = pd.DataFrame(cm, index = [i for i in "01"],
+                  columns = [i for i in "01"])
+    plt.figure(figsize = (10,7))
+    sn.heatmap(df_cm, annot=True, fmt='g')
+
+    plt.savefig('confusion_matrix.png')
+    plt.show()
     plot(history)
+    print()
+    print(classification_report(np.array(test[1]), predictions))
+    
+    diff = np.array(test[1])-predictions.flatten()
+    print()
+    print('Correctly classified: ', np.where(diff == 0)[0].shape[0])
+    print('Incorrectly classified: ', np.where(diff != 0)[0].shape[0])
+    print('False positives: ', np.where(diff == -1)[0].shape[0])
+    print('False negatives: ', np.where(diff == 1)[0].shape[0])
+    print()
 
 if __name__ == '__main__':
     main()
