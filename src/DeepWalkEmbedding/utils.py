@@ -14,7 +14,7 @@ def save_walks(walks):
                 fout.write(str(node) + ' ')
             fout.write('\n')
 
-def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
+def train_test_split(adj, num_genes, train_ratio=0.1, test_ratio=0.05, valid_ratio=0.05):
 
     num_nodes = adj.shape[0] 
     
@@ -29,7 +29,7 @@ def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
     row, col = row[perm], col[perm]
     
     # sample train and test true positive links
-    split = int(len(row) * (1 - test_ratio - train_ratio))
+    split = int(len(row) * (1 - test_ratio - train_ratio- valid_ratio))
     adj_train_edges = (row[:split], col[:split])
     rest_edges = (row[split:], col[split:])
 
@@ -63,7 +63,7 @@ def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
     # - the set we will use to test
 
     # split2 between res (train and validation) and test edges
-    split2 = int( len(rest_edges[0]) * (1- (test_ratio/(test_ratio+train_ratio))) )
+    split2 = int( len(rest_edges[0]) * (1- (test_ratio/(test_ratio+train_ratio+valid_ratio))) )
     res_pos_edges = (rest_edges[0][:split2], rest_edges[1][:split2])
     test_pos_edges = (rest_edges[0][split2:], rest_edges[1][split2:])
     
@@ -74,7 +74,7 @@ def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
     assert(len(test_pos_edges[0]) == len(test_neg_edges[0])), 'Wrong number of negative edges added!'
 
     # split3: between validation and train edges
-    split3 = int( len(res_pos_edges[0]) * (1- (test_ratio/(test_ratio+train_ratio))) )
+    split3 = int( len(res_pos_edges[0]) * (1- (valid_ratio/(valid_ratio+train_ratio))) )
     train_pos_edges = (res_pos_edges[0][:split3], res_pos_edges[1][:split3])
     validation_pos_edges = (res_pos_edges[0][split3:], res_pos_edges[1][split3:])
 
@@ -85,6 +85,11 @@ def train_test_split(adj, num_genes, train_ratio=0.01, test_ratio=0.01):
     train_edges = ( np.hstack((train_pos_edges[0], train_neg_edges[0])), np.hstack((train_pos_edges[1], train_neg_edges[1])) )
     test_edges = ( np.hstack((test_pos_edges[0], test_neg_edges[0])), np.hstack((test_pos_edges[1], test_neg_edges[1])) )
     validation_edges = ( np.hstack((validation_pos_edges[0], validation_neg_edges[0])), np.hstack((validation_pos_edges[1], validation_neg_edges[1])) )
+
+    print(train_edges[0].shape)
+    print(test_edges[0].shape)
+    print(validation_edges[0].shape)
+
 
     # labels definition
     train_labels = np.hstack( (np.ones(len(train_pos_edges[0])), np.zeros(len(train_neg_edges[0]))) )

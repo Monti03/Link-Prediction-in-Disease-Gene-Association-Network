@@ -128,13 +128,33 @@ def main():
     
     loss_fn = tf.keras.losses.BinaryCrossentropy()
 
+    test_pos = np.sum(test[1])
+    test_neg = np.sum(1-np.array(test[1]))
+    print('pos:{}'.format(test_pos))
+    print('neg:{}'.format(test_neg))
+
+    indices = [i for i, x in enumerate(test[1]) if x == 1]
+    indices = indices[:int(test_pos -test_neg)]
+    remove_indexes(indices, test[1])
+
+    test_edges = np.delete(test_edges, indices, 0)
+    test_pos = np.sum(test[1])
+    test_neg = np.sum(1-np.array(test[1]))
+    print('post pos:{}'.format(test_pos))
+    print('post neg:{}'.format(test_neg))
+
     print("-------------------------")
     print(train_edges)
     print("-------------------------")
 
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Dense(300, activation='relu'),
-        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.05),
+        tf.keras.layers.Dense(1000, activation='relu'),
+        tf.keras.layers.Dropout(0.07),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.05), 
+        tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid') 
     ])
 
@@ -143,7 +163,7 @@ def main():
     )
     
     es = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', patience=20, mode='min'
+        monitor='val_loss', patience=10, mode='min'
     )
 
     history = model.fit(train_edges, np.array(train[1]), epochs=500, 
@@ -179,6 +199,8 @@ def main():
     print('False positives: ', np.where(diff == -1)[0].shape[0])
     print('False negatives: ', np.where(diff == 1)[0].shape[0])
     print()
+
+    model.save('model')
 
 if __name__ == '__main__':
     main()
