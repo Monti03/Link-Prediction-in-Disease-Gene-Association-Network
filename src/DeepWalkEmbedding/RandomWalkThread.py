@@ -23,9 +23,10 @@ class RandomWalkTread(Thread):
 
         while len(walk) < constants.WALK_LENGTH:
             cur = walk[-1]
-            cur_nbrs = sorted(G.neighbors(cur))
+            cur_nbrs = list(G.neighbors(cur))
             if len(cur_nbrs) > 0:
                 if(n2v):
+                    cur_nbrs = sorted(G.neighbors(cur))
                     if len(walk) == 1:
                         
                         walk.append(cur_nbrs[int(np.floor(np.random.rand()*len(cur_nbrs)))])

@@ -149,11 +149,11 @@ def main():
 
     model = tf.keras.models.Sequential([
         tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.Dropout(0.05),
-        tf.keras.layers.Dense(1000, activation='relu'),
-        tf.keras.layers.Dropout(0.07),
+        tf.keras.layers.Dropout(0.1),
         tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.Dropout(0.05), 
+        tf.keras.layers.Dropout(0.1),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.1), 
         tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dense(1, activation='sigmoid') 
     ])
@@ -163,7 +163,7 @@ def main():
     )
     
     es = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', patience=10, mode='min'
+        monitor='val_loss', patience=7, mode='min'
     )
 
     history = model.fit(train_edges, np.array(train[1]), epochs=500, 
